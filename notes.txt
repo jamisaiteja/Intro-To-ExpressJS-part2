@@ -1,0 +1,118 @@
+Introduction to Express JS | Part 2 | Cheat Sheet
+Concepts in Focus
+Application Programming Interface (API)
+Database
+SQLite
+    SQLite CLI
+SQLite Methods
+    Open
+    Executing SQL Queries
+SQL Third-party packages
+Connecting SQLite Database from Node JS to get the books from Goodreads Website
+    SQLite Database Initialization
+    Goodreads Get Books API
+
+
+1. Application Programming Interface (API)
+    An API is a software intermediary that allows two applications to talk to each other.
+
+    For example, OLA, and UBER use Google Maps API to provide their services.
+
+    All the Network calls that we added are also the APIs.
+
+2. Database
+    Express apps can use any database supported by Node JS.
+
+    There are many popular options, including SQLite, PostgreSQL, MySQL, Redis, and MongoDB.
+
+3. SQLite
+    The SQLite provides a command-line tool sqlite3.
+
+    It allows the user to enter and execute SQL statements against an SQLite database.
+
+3.1 SQLite CLI
+    3.1.1 Listing Existing Tables
+        The .tables command is used to get the list of tables available in the SQLite database.
+
+3.1.2 Selecting Table Data
+    Syntax: SELECT * from <table>
+
+4. SQLite Methods
+    4.1 Open
+        The SQLite open() method is used to connect the database server and provides a connection object to operate on the database.
+
+        Syntax:
+            open({
+                filename: DATABASE_PATH,
+                driver: SQLITE_DATABASE_DRIVER,
+            });
+        It returns a promise object. On resolving the promise object, we will get the database connection object.
+
+    4.2 Executing SQL Queries
+        SQLite package provides multiple methods to execute SQL queries on a database.
+
+    Some of them are:
+
+        all()
+        get()
+        run()
+        exec(), etc.
+        4.2.1 all()
+        db.all(SQL_QUERY);
+
+        The all() method is used to get multiple rows of data.
+
+5. SQL Third-party packages
+    We can use sqlite and sqlite3 node packages to connect SQLite Database from Node JS.
+
+    Installation Commands:
+        npm install sqlite --save
+        npm install sqlite3 --save
+
+6. Connecting SQLite Database from Node JS to get the books from Goodreads Website
+    Install the SQL third-party packages sqlite and sqlite3.
+    Initialize the SQLite Database
+
+
+    6.1 SQLite Database Initialization
+        const express = require("express");
+        const path = require("path");
+
+        const { open } = require("sqlite");
+        const sqlite3 = require("sqlite3");
+        const app = express();
+
+        const dbPath = path.join(__dirname, "goodreads.db");
+
+        let db = null;
+
+        const initializeDBAndServer = async () => {
+        try {
+            db = await open({
+            filename: dbPath,
+            driver: sqlite3.Database,
+            });
+            app.listen(3000, () => {
+            console.log("Server Running at http://localhost:3000/");
+            });
+        } catch (e) {
+            console.log(`DB Error: ${e.message}`);
+            process.exit(1);
+        }
+        };
+
+        initializeDBAndServer();
+
+
+    6.2 Goodreads Get Books API
+        app.get("/books/", async (request, response) => {
+            const getBooksQuery = `
+                SELECT
+                *
+                FROM
+                book
+                ORDER BY
+                book_id;`;
+            const booksArray = await db.all(getBooksQuery);
+            response.send(booksArray);
+        });
